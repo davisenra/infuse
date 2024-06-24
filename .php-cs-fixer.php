@@ -5,7 +5,11 @@ use PhpCsFixer\Finder;
 
 $finder = (new Finder())->in(__DIR__);
 $rules = [
-    '@PER-CS' => true,
+    '@Symfony' => true,
+    'no_unused_imports' => true,
+    'concat_space' => [
+        'spacing' => 'one',
+    ],
 ];
 
 return (new Config())
