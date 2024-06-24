@@ -4,21 +4,10 @@ namespace Infuse\Exception;
 
 use Psr\Container\NotFoundExceptionInterface;
 
-class NotFoundException implements NotFoundExceptionInterface
+class NotFoundException extends \Exception implements NotFoundExceptionInterface
 {
-    public function getMessage(): string {}
-
-    public function getCode() {}
-
-    public function getFile(): string {}
-
-    public function getLine(): int {}
-
-    public function getTrace(): array {}
-
-    public function getTraceAsString(): string {}
-
-    public function getPrevious() {}
-
-    public function __toString() {}
+    public static function forBinding(string $id): self
+    {
+        return new self(sprintf('No binding for "%s" could be found.', $id));
+    }
 }

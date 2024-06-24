@@ -28,6 +28,7 @@
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.59",
         "phpstan/phpstan": "^1.11",
-        "phpunit/phpunit": "^11.2"
+        "phpunit/phpunit": "^11.2",
+        "robiningelbrecht/phpunit-pretty-print": "^1.3"
     }
 }
