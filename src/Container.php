@@ -29,7 +29,7 @@ class Container implements ContainerInterface
      *
      * @return mixed entry
      *
-     * @throws NotFoundExceptionInterface  no entry was found for **this** identifier
+     * @throws NotFoundExceptionInterface  no entry was found for the provided identifier
      * @throws ContainerExceptionInterface error while retrieving the entry
      */
     public function get(string $id): mixed
@@ -52,7 +52,7 @@ class Container implements ContainerInterface
             return $instance;
         }
 
-        throw NotFoundException::forBinding($id);
+        throw NotFoundException::ForBinding($id);
     }
 
     /**
@@ -71,12 +71,25 @@ class Container implements ContainerInterface
 
     /**
      * @param callable(Container): mixed $callable
+     *
+     * @throws ContainerExceptionInterface
      */
     public function bind(string $id, callable $callable): void
     {
+        if ($this->has($id)) {
+            throw ContainerException::ForAlreadyDefinedId($id);
+        }
+
         $this->bindings[$id] = $callable;
     }
 
+    /**
+     * @param class-string $id
+     *
+     * @throws ContainerException
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     private function resolve(string $id): mixed
     {
         try {
@@ -101,6 +114,15 @@ class Container implements ContainerInterface
         }
     }
 
+    /**
+     * @param \ReflectionParameter[] $parameters
+     *
+     * @return array<int, mixed>
+     *
+     * @throws ContainerException
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     private function resolveDependencies(array $parameters): array
     {
         $dependencies = [];

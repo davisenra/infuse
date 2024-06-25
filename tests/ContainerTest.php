@@ -9,6 +9,7 @@ use Infuse\Exception\ContainerException;
 use Infuse\Exception\NotFoundException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 use Tests\Fixtures\Foo;
 use Tests\Fixtures\FooWithDeeplyNestedDependency;
@@ -16,6 +17,8 @@ use Tests\Fixtures\FooWithDependency;
 use Tests\Fixtures\NonInstantiableClass;
 
 #[CoversClass(Container::class)]
+#[UsesClass(NotFoundException::class)]
+#[UsesClass(ContainerException::class)]
 class ContainerTest extends TestCase
 {
     private Container $container;
@@ -71,6 +74,16 @@ class ContainerTest extends TestCase
         $anotherInstance = $this->container->get(Foo::class);
 
         $this->assertSame($someInstance, $anotherInstance);
+    }
+
+    #[Test]
+    public function itThrowsAContainerExceptionIfTryingToBindAlreadyExistingId(): void
+    {
+        $this->expectException(ContainerException::class);
+        $this->expectExceptionMessage('Tests\Fixtures\Foo is already defined');
+
+        $this->container->bind(Foo::class, fn () => new Foo());
+        $this->container->bind(Foo::class, fn () => new Foo());
     }
 
     #[Test]
