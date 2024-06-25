@@ -23,6 +23,11 @@ class Container implements ContainerInterface
     private array $instances = [];
 
     /**
+     * @var array<string, true>
+     */
+    private array $resolving = [];
+
+    /**
      * Finds an entry of the container by its identifier and returns it.
      *
      * @param string $id identifier of the entry to look for
@@ -34,22 +39,37 @@ class Container implements ContainerInterface
      */
     public function get(string $id): mixed
     {
+        if (isset($this->resolving[$id])) {
+            throw ContainerException::ForCircularDependency($id);
+        }
+
         if (isset($this->instances[$id])) {
             return $this->instances[$id];
         }
 
         if (isset($this->bindings[$id])) {
-            $callable = $this->bindings[$id];
-            $this->instances[$id] = $callable($this);
+            $this->resolving[$id] = true;
 
-            return $this->instances[$id];
+            try {
+                $callable = $this->bindings[$id];
+                $this->instances[$id] = $callable($this);
+
+                return $this->instances[$id];
+            } finally {
+                unset($this->resolving[$id]);
+            }
         }
 
         if (\class_exists($id)) {
-            $instance = $this->resolve($id);
-            $this->instances[$id] = $instance;
+            $this->resolving[$id] = true;
+            try {
+                $instance = $this->resolve($id);
+                $this->instances[$id] = $instance;
 
-            return $instance;
+                return $instance;
+            } finally {
+                unset($this->resolving[$id]);
+            }
         }
 
         throw NotFoundException::ForBinding($id);

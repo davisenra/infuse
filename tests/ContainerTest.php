@@ -29,13 +29,13 @@ class ContainerTest extends TestCase
     }
 
     #[Test]
-    public function itCanBeInstantiated(): void
+    public function containerCanBeInstantiated(): void
     {
         $this->assertInstanceOf(Container::class, $this->container);
     }
 
     #[Test]
-    public function itCanBindAClassToTheContainer(): void
+    public function bindingClassToContainer(): void
     {
         $this->container->bind(Foo::class, fn () => new Foo());
 
@@ -43,7 +43,7 @@ class ContainerTest extends TestCase
     }
 
     #[Test]
-    public function itCanBindAnArrayToTheContainer(): void
+    public function bindingArrayToContainer(): void
     {
         $array = [
             'some_param' => true,
@@ -57,7 +57,7 @@ class ContainerTest extends TestCase
     }
 
     #[Test]
-    public function itCanBindAScalarToTheContainer(): void
+    public function bindingScalarToContainer(): void
     {
         $this->container->bind('latency', fn () => 123);
 
@@ -66,7 +66,20 @@ class ContainerTest extends TestCase
     }
 
     #[Test]
-    public function itGetsTheSameInstanceIfAlreadyInstantiated(): void
+    public function bindingCallableToContainer(): void
+    {
+        $this->container->bind('callable', function () {
+            return function () {
+                return 123;
+            };
+        });
+
+        $this->assertTrue($this->container->has('callable'));
+        $this->assertIsCallable($this->container->get('callable'));
+    }
+
+    #[Test]
+    public function singletonPatternEnsuresSameInstance(): void
     {
         $this->container->bind(Foo::class, fn () => new Foo());
 
@@ -77,7 +90,7 @@ class ContainerTest extends TestCase
     }
 
     #[Test]
-    public function itThrowsAContainerExceptionIfTryingToBindAlreadyExistingId(): void
+    public function exceptionIsThrownOnBindingDuplicateId(): void
     {
         $this->expectException(ContainerException::class);
         $this->expectExceptionMessage('Tests\Fixtures\Foo is already defined');
@@ -87,7 +100,7 @@ class ContainerTest extends TestCase
     }
 
     #[Test]
-    public function itThrowsAnExceptionIfBindingCannotBeResolved(): void
+    public function exceptionIsThrownOnUnresolvedBinding(): void
     {
         $this->expectException(NotFoundException::class);
         $this->expectExceptionMessage('No binding for "Bar" could be found.');
@@ -96,7 +109,7 @@ class ContainerTest extends TestCase
     }
 
     #[Test]
-    public function itCanAutoWireBindingDependencies(): void
+    public function autowireDependencies(): void
     {
         $this->container->bind(FooWithDependency::class, function (Container $c) {
             /** @var Foo $dependency */
@@ -111,7 +124,7 @@ class ContainerTest extends TestCase
     }
 
     #[Test]
-    public function itCanAutoWireWithDeeplyNestedDependency(): void
+    public function autowireDeeplyNestedDependencies(): void
     {
         $this->container->bind(FooWithDeeplyNestedDependency::class, function (Container $c) {
             /** @var FooWithDependency $fooWithDependency */
@@ -126,11 +139,89 @@ class ContainerTest extends TestCase
     }
 
     #[Test]
-    public function itThrowsAContainerExceptionIfSomethingIsNotInstantiable(): void
+    public function exceptionOnNonInstantiableClass(): void
     {
         $this->expectException(ContainerException::class);
         $this->expectExceptionMessage('Class Tests\Fixtures\NonInstantiableClass is not instantiable');
 
         $this->container->get(NonInstantiableClass::class);
+    }
+
+    #[Test]
+    public function getThrowsExceptionIfCallableFails(): void
+    {
+        $this->container->bind('something', function () {
+            throw new \Exception('Something wrong happened inside the callable');
+        });
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Something wrong happened inside the callable');
+
+        $this->container->get('something');
+    }
+
+    #[Test]
+    public function getWithDefaultParameters(): void
+    {
+        $this->container->bind('ClassWithDefaultParameters', function () {
+            return new class() {
+                public function __construct(private readonly string $param = 'default')
+                {
+                }
+
+                public function getParam(): string
+                {
+                    return $this->param;
+                }
+            };
+        });
+
+        $instance = $this->container->get('ClassWithDefaultParameters');
+        $this->assertEquals('default', $instance->getParam());
+    }
+
+    #[Test]
+    public function resolveHandlesOptionalDependencies(): void
+    {
+        $this->container->bind('ClassWithOptionalDependencies', function () {
+            return new class() {
+                public function __construct(private readonly ?Foo $foo = null)
+                {
+                }
+
+                public function getFoo(): ?Foo
+                {
+                    return $this->foo;
+                }
+            };
+        });
+
+        $instance = $this->container->get('ClassWithOptionalDependencies');
+        $this->assertNull($instance->getFoo());
+    }
+
+    #[Test]
+    public function resolveThrowsExceptionForCircularDependencies(): void
+    {
+        $this->container->bind('ClassA', function (Container $c) {
+            return new class($c->get('ClassB')) {
+                public function __construct(private $classB)
+                {
+                }
+            };
+        });
+
+        $this->container->bind('ClassB', function (Container $c) {
+            return new class($c->get('ClassA')) {
+                public function __construct(private $classA)
+                {
+                }
+            };
+        });
+
+        $this->expectException(ContainerException::class);
+        $this->expectExceptionMessage('Circular dependency detected while trying to resolve ClassA');
+
+        $this->container->get('ClassA');
     }
 }

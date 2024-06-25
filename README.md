@@ -8,7 +8,7 @@
 - ✔️ Simple API (only 3 methods)
 - ✔️ Container can be built from definitions
 - ✔️ Singleton pattern
-- ⏳ Detects circular dependencies
+- ✔️ Detects circular dependencies
 
 ## Documentation
 
