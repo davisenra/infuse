@@ -1,34 +1,48 @@
 {
-    "name": "infuse/infuse",
-    "description": "A PSR-11 compliant dependency injection library",
-    "type": "library",
-    "license": "MIT License",
-    "autoload": {
-        "psr-4": {
-            "Infuse\\": "src/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "Tests\\": "tests/"
-        }
-    },
-    "scripts": {
-        "lint": "vendor/bin/phpstan analyse --memory-limit=2G",
-        "format": "vendor/bin/php-cs-fixer fix",
-        "test": "vendor/bin/phpunit"
-    },
-    "config": {
-        "sort-packages": true
-    },
-    "require": {
-        "php": "^8.2",
-        "psr/container": "^2.0"
-    },
-    "require-dev": {
-        "friendsofphp/php-cs-fixer": "^3.59",
-        "phpstan/phpstan": "^1.11",
-        "phpunit/phpunit": "^11.2",
-        "robiningelbrecht/phpunit-pretty-print": "^1.3"
+  "name": "infuse/infuse",
+  "description": "A PSR-11 compliant dependency injection library",
+  "type": "library",
+  "license": "MIT",
+  "keywords": [
+    "psr-11",
+    "di",
+    "dependency injection"
+  ],
+  "version": "0.1.0",
+  "authors": [
+    {
+      "name": "Davi Senra",
+      "email": "davi.senra98@gmail.com",
+      "homepage": "https://davisenra.com.br",
+      "role": "Developer"
     }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Infuse\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "lint": "vendor/bin/phpstan analyse --memory-limit=2G",
+    "format": "vendor/bin/php-cs-fixer fix",
+    "test": "vendor/bin/phpunit"
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "require": {
+    "php": "^8.2",
+    "psr/container": "^2.0"
+  },
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "^3.59",
+    "phpstan/phpstan": "^1.11",
+    "phpunit/phpunit": "^11.2",
+    "robiningelbrecht/phpunit-pretty-print": "^1.3"
+  }
 }
