@@ -22,9 +22,13 @@
         </include>
     </source>
 
+    <coverage ignoreDeprecatedCodeUnits="true"
+              disableCodeCoverageIgnore="true">
+    </coverage>
+
     <extensions>
         <bootstrap class="RobinIngelbrecht\PHPUnitPrettyPrint\PhpUnitExtension">
-            <parameter name="useCompactMode" value="true"/>
+            <parameter name="useCompactMode" value="false"/>
         </bootstrap>
     </extensions>
 </phpunit>
