@@ -30,7 +30,7 @@
   "scripts": {
     "lint": "vendor/bin/phpstan analyse --memory-limit=2G",
     "format": "vendor/bin/php-cs-fixer fix",
-    "test": "vendor/bin/phpunit"
+    "test": "vendor/bin/phpunit --coverage-text"
   },
   "config": {
     "sort-packages": true
