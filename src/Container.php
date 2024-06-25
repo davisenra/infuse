@@ -72,7 +72,7 @@ class Container implements ContainerInterface
     /**
      * @param callable(Container): mixed $callable
      *
-     * @throws ContainerExceptionInterface
+     * @throws ContainerExceptionInterface if provided id is not unique
      */
     public function bind(string $id, callable $callable): void
     {

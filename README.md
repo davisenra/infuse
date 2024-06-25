@@ -12,15 +12,41 @@
 
 ## Documentation
 
-Infuse only has three methods:
+Infuse has a very minimal API with only has three methods:
 
 ```php
+/**
+ * Finds an entry of the container by its identifier and returns it.
+ *
+ * @param string $id identifier of the entry to look for
+ *
+ * @return mixed entry
+ *
+ * @throws NotFoundExceptionInterface  no entry was found for the provided identifier
+ * @throws ContainerExceptionInterface error while retrieving the entry
+ */
 public function get(string $id): mixed;
+
+/**
+ * Returns true if the container can return an entry for the given identifier.
+ * Returns false otherwise.
+ *
+ * `has($id)` returning true does not mean that `get($id)` will not throw an exception.
+ * It does however mean that `get($id)` will not throw a `NotFoundExceptionInterface`.
+ *
+ * @param string $id identifier of the entry to look for
+ */
 public function has(string $id): bool;
+
+/**
+ * @param callable(Container): mixed $callable
+ *
+ * @throws ContainerExceptionInterface if provided id is not unique
+ */
 public function bind(string $id, callable $callable): void;
 ```
 
-**Example:**
+Example:
 
 ```php
 use Infuse\Container;
@@ -62,7 +88,7 @@ $container->bind('some_array', fn () => ['hello' => 'world']);
 $container->bind('some_scalar', fn () => 42);
 ```
 
-**Create from definitions:**
+You can also create a ready to use Container from a previously built definitions array:
 
 ```php
 // definitions.php
@@ -86,6 +112,7 @@ return [
 ```
 
 ```php
+// something.php
 use Infuse\ContainerFactory;
 
 $definitions = require __DIR__ . '/definitions.php';
