@@ -11,6 +11,10 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
+use Tests\Fixtures\CircularDependencyA;
+use Tests\Fixtures\CircularDependencyB;
+use Tests\Fixtures\ClassWithDefaultParameters;
+use Tests\Fixtures\ClassWithOptionalDependency;
 use Tests\Fixtures\Foo;
 use Tests\Fixtures\FooWithDeeplyNestedDependency;
 use Tests\Fixtures\FooWithDependency;
@@ -163,65 +167,43 @@ class ContainerTest extends TestCase
     #[Test]
     public function getWithDefaultParameters(): void
     {
-        $this->container->bind('ClassWithDefaultParameters', function () {
-            return new class() {
-                public function __construct(private readonly string $param = 'default')
-                {
-                }
+        $this->container->bind(ClassWithDefaultParameters::class, fn () => new ClassWithDefaultParameters());
 
-                public function getParam(): string
-                {
-                    return $this->param;
-                }
-            };
-        });
-
-        $instance = $this->container->get('ClassWithDefaultParameters');
+        $instance = $this->container->get(ClassWithDefaultParameters::class);
+        $this->assertInstanceOf(ClassWithDefaultParameters::class, $instance);
         $this->assertEquals('default', $instance->getParam());
     }
 
     #[Test]
     public function resolveHandlesOptionalDependencies(): void
     {
-        $this->container->bind('ClassWithOptionalDependencies', function () {
-            return new class() {
-                public function __construct(private readonly ?Foo $foo = null)
-                {
-                }
+        $this->container->bind(ClassWithOptionalDependency::class, fn () => new ClassWithOptionalDependency());
 
-                public function getFoo(): ?Foo
-                {
-                    return $this->foo;
-                }
-            };
-        });
-
-        $instance = $this->container->get('ClassWithOptionalDependencies');
+        $instance = $this->container->get(ClassWithOptionalDependency::class);
+        $this->assertInstanceOf(ClassWithOptionalDependency::class, $instance);
         $this->assertNull($instance->getFoo());
     }
 
     #[Test]
     public function resolveThrowsExceptionForCircularDependencies(): void
     {
-        $this->container->bind('ClassA', function (Container $c) {
-            return new class($c->get('ClassB')) {
-                public function __construct(private $classB)
-                {
-                }
-            };
+        $this->container->bind(CircularDependencyA::class, function (Container $c) {
+            /** @var CircularDependencyB $circularDependency */
+            $circularDependency = $c->get(CircularDependencyB::class);
+
+            return new CircularDependencyA($circularDependency);
         });
 
-        $this->container->bind('ClassB', function (Container $c) {
-            return new class($c->get('ClassA')) {
-                public function __construct(private $classA)
-                {
-                }
-            };
+        $this->container->bind(CircularDependencyB::class, function (Container $c) {
+            /** @var CircularDependencyA $circularDependency */
+            $circularDependency = $c->get(CircularDependencyA::class);
+
+            return new CircularDependencyB($circularDependency);
         });
 
         $this->expectException(ContainerException::class);
-        $this->expectExceptionMessage('Circular dependency detected while trying to resolve ClassA');
+        $this->expectExceptionMessage('Circular dependency detected while trying to resolve Tests\Fixtures\CircularDependencyA');
 
-        $this->container->get('ClassA');
+        $this->container->get(CircularDependencyA::class);
     }
 }

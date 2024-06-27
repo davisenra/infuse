@@ -1,6 +1,14 @@
-# Infuse 🍃
+<p align="center">
+<img alt="Infuse" height="300px" src="https://lh3.googleusercontent.com/u/0/drive-viewer/AKGpihYT3DeKenXvqzATXvPED-OuWfeuPmVKMqoLCZUQnZh7teVAvdJcAD6UJlqP-C_AppqiZFLOk1MOEyzQblbIy2G0e6PqZW6f1yc=w2560-h927-rw-v1">
+</p>
 
-*A minimal PSR-11 implementation.*
+<p style="text-align: center; font-size: 36px; font-weight: bold">
+Infuse 🍃
+</p>
+
+<p style="text-align: center; font-style: italic">
+A minimal PSR-11 implementation.
+</p>
 
 ## Features
 
@@ -9,6 +17,8 @@
 - ✔️ Container can be built from definitions
 - ✔️ Singleton pattern
 - ✔️ Detects circular dependencies
+- ⏳ Compilable for production
+- ⏳ PHPStan generics support for container bindings
 
 ## Documentation
 
@@ -39,11 +49,11 @@ public function get(string $id): mixed;
 public function has(string $id): bool;
 
 /**
- * @param callable(Container): mixed $callable
+ * @param \Closure(Container): mixed $definition
  *
  * @throws ContainerExceptionInterface if provided id is not unique
  */
-public function bind(string $id, callable $callable): void;
+public function bind(string $id, \Closure $definition): void;
 ```
 
 Example:
@@ -88,7 +98,7 @@ $container->bind('some_array', fn () => ['hello' => 'world']);
 $container->bind('some_scalar', fn () => 42);
 ```
 
-You can also create a ready to use Container from a previously built definitions array:
+You can also create a ready to use Container from a definitions array:
 
 ```php
 // definitions.php

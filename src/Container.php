@@ -90,17 +90,17 @@ class Container implements ContainerInterface
     }
 
     /**
-     * @param callable(Container): mixed $callable
+     * @param \Closure(Container): mixed $definition
      *
      * @throws ContainerExceptionInterface if provided id is not unique
      */
-    public function bind(string $id, callable $callable): void
+    public function bind(string $id, \Closure $definition): void
     {
         if ($this->has($id)) {
             throw ContainerException::ForAlreadyDefinedId($id);
         }
 
-        $this->bindings[$id] = $callable;
+        $this->bindings[$id] = $definition;
     }
 
     /**

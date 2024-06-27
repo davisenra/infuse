@@ -7,7 +7,7 @@ namespace Infuse;
 abstract class ContainerFactory
 {
     /**
-     * @param array<string, callable> $definitions
+     * @param array<string, \Closure> $definitions
      */
     public static function FromDefinitions(array $definitions): Container
     {
