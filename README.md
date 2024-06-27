@@ -2,13 +2,9 @@
 <img alt="Infuse" height="300px" src="https://lh3.googleusercontent.com/u/0/drive-viewer/AKGpihYT3DeKenXvqzATXvPED-OuWfeuPmVKMqoLCZUQnZh7teVAvdJcAD6UJlqP-C_AppqiZFLOk1MOEyzQblbIy2G0e6PqZW6f1yc=w2560-h927-rw-v1">
 </p>
 
-<p style="text-align: center; font-size: 36px; font-weight: bold">
-Infuse 🍃
-</p>
+# Infuse 🍃
 
-<p style="text-align: center; font-style: italic">
-A minimal PSR-11 implementation.
-</p>
+*A minimal PSR-11 implementation.*
 
 ## Features
 
