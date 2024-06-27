@@ -2,6 +2,15 @@
 <img alt="Infuse" height="300px" src="https://lh3.googleusercontent.com/u/0/drive-viewer/AKGpihYT3DeKenXvqzATXvPED-OuWfeuPmVKMqoLCZUQnZh7teVAvdJcAD6UJlqP-C_AppqiZFLOk1MOEyzQblbIy2G0e6PqZW6f1yc=w2560-h927-rw-v1">
 </p>
 
+<div align="center">
+
+![CI](https://github.com/davisenra/infuse/actions/workflows/ci.yml/badge.svg?branch=main)
+![Packagist](https://img.shields.io/packagist/v/infuse-di/infuse)
+![PHP](https://img.shields.io/packagist/dependency-v/infuse-di/infuse/php)
+![License](https://img.shields.io/github/license/davisenra/infuse)
+
+</div>
+
 # Infuse 🍃
 
 *A minimal PSR-11 implementation.*
