@@ -132,7 +132,7 @@ $container->has(GeoLocationService::class); // true
 The recommended way to install Infuse is through [Composer](https://getcomposer.org/).
 
 ```bash
-composer require infuse/infuse
+composer require infuse-di/infuse
 ```
 
 ## Tests

@@ -1,8 +1,9 @@
 {
-  "name": "infuse/infuse",
+  "name": "infuse-di/infuse",
   "description": "A PSR-11 compliant dependency injection library",
   "type": "library",
   "license": "MIT",
+  "homepage": "https://github.com/davisenra/infuse",
   "keywords": [
     "psr-11",
     "di",
