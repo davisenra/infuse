@@ -30,7 +30,7 @@
   },
   "scripts": {
     "lint": "vendor/bin/phpstan analyse --memory-limit=2G",
-    "format": "vendor/bin/php-cs-fixer fix",
+    "format": "PHP_CS_FIXER_IGNORE_ENV=true vendor/bin/php-cs-fixer check",
     "test": "vendor/bin/phpunit --coverage-text"
   },
   "config": {
