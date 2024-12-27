@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Infuse;
 
+use Infuse\Attributes\Singleton;
 use Infuse\Exception\ContainerException;
 use Infuse\Exception\NotFoundException;
 use Psr\Container\ContainerExceptionInterface;
@@ -20,7 +21,7 @@ class Container implements ContainerInterface
     /**
      * @var array<string, mixed>
      */
-    private array $instances = [];
+    private array $singletons = [];
 
     /**
      * @var array<string, true>
@@ -43,33 +44,24 @@ class Container implements ContainerInterface
             throw ContainerException::ForCircularDependency($id);
         }
 
-        if (isset($this->instances[$id])) {
-            return $this->instances[$id];
+        if (isset($this->singletons[$id])) {
+            return $this->singletons[$id];
         }
 
-        if (isset($this->bindings[$id])) {
-            $this->resolving[$id] = true;
+        $this->resolving[$id] = true;
 
-            try {
+        try {
+            if (class_exists($id)) {
+                return $this->resolve($id);
+            }
+
+            if (isset($this->bindings[$id])) {
                 $callable = $this->bindings[$id];
-                $this->instances[$id] = $callable($this);
 
-                return $this->instances[$id];
-            } finally {
-                unset($this->resolving[$id]);
+                return $callable($this);
             }
-        }
-
-        if (\class_exists($id)) {
-            $this->resolving[$id] = true;
-            try {
-                $instance = $this->resolve($id);
-                $this->instances[$id] = $instance;
-
-                return $instance;
-            } finally {
-                unset($this->resolving[$id]);
-            }
+        } finally {
+            unset($this->resolving[$id]);
         }
 
         throw NotFoundException::ForBinding($id);
@@ -122,13 +114,16 @@ class Container implements ContainerInterface
             $constructor = $reflector->getConstructor();
 
             if (is_null($constructor)) {
-                return new $id();
+                $instance = new $id();
+            } else {
+                $parameters = $constructor->getParameters();
+                $dependencies = $this->resolveDependencies($parameters);
+                $instance = $reflector->newInstanceArgs($dependencies);
             }
 
-            $parameters = $constructor->getParameters();
-            $dependencies = $this->resolveDependencies($parameters);
+            $this->cacheIfSingleton($id, $reflector, $instance);
 
-            return $reflector->newInstanceArgs($dependencies);
+            return $instance;
         } catch (\ReflectionException $e) {
             throw new ContainerException("Unable to reflect class {$id}: " . $e->getMessage(), previous: $e);
         }
@@ -164,5 +159,21 @@ class Container implements ContainerInterface
         }
 
         return $dependencies;
+    }
+
+    /**
+     * @param \ReflectionClass<object> $reflector
+     */
+    private function cacheIfSingleton(string $id, \ReflectionClass $reflector, mixed $instance): void
+    {
+        if (!is_object($instance)) {
+            return;
+        }
+
+        $isSingleton = [] !== $reflector->getAttributes(Singleton::class);
+
+        if ($isSingleton) {
+            $this->singletons[$id] = $instance;
+        }
     }
 }

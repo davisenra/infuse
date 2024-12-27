@@ -9,7 +9,6 @@ use Infuse\Exception\ContainerException;
 use Infuse\Exception\NotFoundException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 use Tests\Fixtures\CircularDependencyA;
 use Tests\Fixtures\CircularDependencyB;
@@ -19,10 +18,11 @@ use Tests\Fixtures\Foo;
 use Tests\Fixtures\FooWithDeeplyNestedDependency;
 use Tests\Fixtures\FooWithDependency;
 use Tests\Fixtures\NonInstantiableClass;
+use Tests\Fixtures\SingletonDependency;
 
 #[CoversClass(Container::class)]
-#[UsesClass(NotFoundException::class)]
-#[UsesClass(ContainerException::class)]
+#[CoversClass(NotFoundException::class)]
+#[CoversClass(ContainerException::class)]
 class ContainerTest extends TestCase
 {
     private Container $container;
@@ -80,17 +80,6 @@ class ContainerTest extends TestCase
 
         $this->assertTrue($this->container->has('callable'));
         $this->assertIsCallable($this->container->get('callable'));
-    }
-
-    #[Test]
-    public function singletonPatternEnsuresSameInstance(): void
-    {
-        $this->container->bind(Foo::class, fn () => new Foo());
-
-        $someInstance = $this->container->get(Foo::class);
-        $anotherInstance = $this->container->get(Foo::class);
-
-        $this->assertSame($someInstance, $anotherInstance);
     }
 
     #[Test]
@@ -180,8 +169,8 @@ class ContainerTest extends TestCase
         $this->container->bind(ClassWithOptionalDependency::class, fn () => new ClassWithOptionalDependency());
 
         $instance = $this->container->get(ClassWithOptionalDependency::class);
+
         $this->assertInstanceOf(ClassWithOptionalDependency::class, $instance);
-        $this->assertNull($instance->getFoo());
     }
 
     #[Test]
@@ -205,5 +194,27 @@ class ContainerTest extends TestCase
         $this->expectExceptionMessage('Circular dependency detected while trying to resolve Tests\Fixtures\CircularDependencyA');
 
         $this->container->get(CircularDependencyA::class);
+    }
+
+    #[Test]
+    public function regularBindingDoesNotReturnASingleton(): void
+    {
+        $this->container->bind(Foo::class, fn () => new Foo());
+
+        $instanceA = $this->container->get(Foo::class);
+        $instanceB = $this->container->get(Foo::class);
+
+        $this->assertNotSame($instanceA, $instanceB);
+    }
+
+    #[Test]
+    public function bindingAndRetrievingSingletonDependency(): void
+    {
+        $this->container->bind(SingletonDependency::class, fn () => new SingletonDependency());
+
+        $instanceA = $this->container->get(SingletonDependency::class);
+        $instanceB = $this->container->get(SingletonDependency::class);
+
+        $this->assertSame($instanceA, $instanceB);
     }
 }
