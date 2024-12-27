@@ -51,7 +51,7 @@ jobs:
         run: composer lint
 
       - name: Run PHP CS Fixer
-        run: composer format -- --dry-run --diff
+        run: composer format
 
       - name: Run PHPUnit
         run: composer test
