@@ -13,14 +13,14 @@
 
 # Infuse 🍃
 
-*A minimal PSR-11 implementation.*
+_A minimal PSR-11 implementation._
 
 ## Features
 
 - ✔️ Autowiring (powered by Reflection)
 - ✔️ Simple API (only 3 methods)
 - ✔️ Container can be built from definitions
-- ✔️ Singleton pattern
+- ✔️ Singletons
 - ✔️ Detects circular dependencies
 - ⏳ Compilable for production
 - ⏳ PHPStan generics support for container bindings
@@ -86,10 +86,6 @@ $container->bind(Foo::class, function (Container $c) {
 $foo = $container->get(Foo::class);
 $isFoo = $foo instanceof Foo; // true
 
-// Every instance is a singleton, you'll always receive the same reference
-$sameFoo = $container->get(Foo::class);
-$sameInstance = $foo === $sameFoo; // true
-
 // This will throw a ContainerException, ids must be unique
 $container->bind(Bar::class, function (Container $c) {
     return new Bar();
@@ -134,6 +130,19 @@ $definitions = require __DIR__ . '/definitions.php';
 $container = ContainerFactory::FromDefinitions($definitions);
 $container->has('config'); // true
 $container->has(GeoLocationService::class); // true
+```
+
+Mark your classes with the Singleton attribute to always receive the same instance:
+
+```php
+use Infuse\Attributes\Singleton;
+
+#[Singleton]
+class SomeSingleton {}
+
+$container = new Container();
+$sameInstance = $container->get(SomeSingleton::class);
+$asThisOne = $container->get(SomeSingleton::class);
 ```
 
 ## Installing
